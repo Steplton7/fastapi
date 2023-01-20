@@ -1,10 +1,10 @@
 from typing import List
 from fastapi import FastAPI, Query, Path, Body
-from schemas import Book, Author
+from schemas import Book, Author, BookOut
 
 app = FastAPI()
 
-
+'''
 @app.get('/')
 def home():
     return {"key":"Hello"}
@@ -22,10 +22,9 @@ def get_user_item(pk: int, item: str):
     return {"user": pk, "item": item}
 
 
-
 @app.post('/book')
 def create_book(item: Book, author: Author, quantity: int = Body(...)):
-    """ Модели. Указание аргументов которые входят только в тело запроса, а не url."""
+    """ Модели. Указание аргументов входяих только в тело запроса, а не url."""
     return {"item": item, "author": author, "quantity": quantity}
 
 
@@ -35,8 +34,8 @@ def create_author(author: Author = Body(..., embed=True)):
     return {"author": author}
 
 
-@app.get('/book') # ... показывает что параметр обязательный
-def gte_book(q: List[str] = Query(["1","2"], description='Search book')):
+@app.get('/test') # ... показывает что параметр обязательный
+def gte_book(q: List[str] = Query(["test1","test2"], description='Search book')):
     """ Парметры."""
     return q
 
@@ -45,3 +44,14 @@ def gte_book(q: List[str] = Query(["1","2"], description='Search book')):
 def get_single(pk: int = Path(..., gt=1, le=20), pages: int = Query(None, gt=10, le=500)):
     """ Функция получения книги по id."""
     return {"pk": pk}
+
+'''
+
+@app.post('/book', response_model=BookOut,
+                   response_model_exclude_unset=True,
+                   response_model_exclude={"pages"})
+# response_model_exclude_unset -  свойства по умолчанию должны быть исключены.
+# response_model_exclude - исключить некотрые свойства
+# response_model_include - в ответ указываються только указанные параметры
+def create_book(item: Book):
+    return BookOut(**item.dict(), id=3)
